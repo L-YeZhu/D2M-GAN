@@ -13,21 +13,19 @@ In our paper Quantized GAN for Complex Music Generation from Dance Videos, we pr
 ## 1. Environment Setup
 
 The envirunment can be set up following the instructions below.
-Since our proposed **D2M-GAN** utilizes the VQ-VAE decoder from the [JukeBox](https://github.com/openai/jukebox) for synthesizing the music, the environment setup for JukeBox is also required.
+Since our proposed **D2M-GAN** utilizes the VQ-VAE decoder of JukeBox for synthesizing the music, part of the code for loading the pre-trained VQ-VAE are adapted from the [JukeBox repo](https://github.com/openai/jukebox).
 
+ 
 ```
-# The conda environment named `d2m` can be created and activated using:
+conda create --name d2m python=3.8
+source activate d2m
+conda install mpi4py==3.0.3
+conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=10.2 -c pytorch
 git clone https://github.com/L-YeZhu/D2M-GAN.git
 cd D2M-GAN
-conda env create -f environment.yaml
-conda activate d2m
-
-
-
-
+pip install -r requirements.txt
+pip install -e .
 ```
- 
-
 
 
 ## 2. Data
