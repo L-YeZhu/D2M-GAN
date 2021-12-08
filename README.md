@@ -20,8 +20,8 @@ Since our proposed **D2M-GAN** utilizes the VQ-VAE decoder of JukeBox for synthe
 conda create --name d2m python=3.8
 source activate d2m
 conda install mpi4py==3.0.3
-# conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0 -c pytorch
-conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
+# install the pytorch and cudatoolkit based on your machine env.
+conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0 -c pytorch
 git clone https://github.com/L-YeZhu/D2M-GAN.git
 cd D2M-GAN
 pip install -r requirements.txt
