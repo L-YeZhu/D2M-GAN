@@ -62,10 +62,6 @@ def load_entire(audio_files, hps):
     xs = []
     #for audio_file in audio_files:
     a, sr = librosa.load(audio_files, sr=22050, offset=0.0, mono=True)
-    #print("original a", np.shape(a))
-    #sf.write('original.wav', a, sr)
-    #a = np.asarray(a)
-    #a = a.astype(float)
     if len(a.shape) == 1:
         a = a.reshape((1,-1))
     a = a.T # ct -> tc
@@ -78,24 +74,10 @@ def load_entire(audio_files, hps):
 
 
 
-# Load codes from previous sampling run
-def load_codes(codes_file, duration, priors, hps):
-    data = t.load(codes_file, map_location='cpu')
-    zs = [z.cuda() for z in data['zs']]
-    assert zs[-1].shape[0] == hps.n_samples, f"Expected bs = {hps.n_samples}, got {zs[-1].shape[0]}"
-    del data
-    if duration is not None:
-        # Cut off codes to match duration
-        top_raw_to_tokens = priors[-1].raw_to_tokens
-        assert duration % top_raw_to_tokens == 0, f"Cut-off duration {duration} not an exact multiple of top_raw_to_tokens"
-        assert duration//top_raw_to_tokens <= zs[-1].shape[1], f"Cut-off tokens {duration//priors[-1].raw_to_tokens} longer than tokens {zs[-1].shape[1]} in saved codes"
-        zs = [z[:,:duration//prior.raw_to_tokens] for z, prior in zip(zs, priors)]
-    return zs
-
 # Generate and save samples, alignment, and webpage for visualization.
-def train(model, device, hps, sample_hps):
+def train(model, device, hps):
     ##from jukebox.lyricdict import poems, gpt_2_lyrics
-    root = '/home/zhuye/musicgen/logs'
+    root = './logs'
     batch_size = 16
     #args = parse_args()
     writer = SummaryWriter(str(root))
@@ -334,10 +316,10 @@ def run(model, mode='ancestral', codes_file=None, audio_file=None, prompt_length
     from jukebox.utils.dist_utils import setup_dist_from_mpi
     rank, local_rank, device = setup_dist_from_mpi(port=port)
     hps = Hyperparams(**kwargs)
-    sample_hps = Hyperparams(dict(mode=mode, codes_file=codes_file, audio_file=audio_file, prompt_length_in_seconds=prompt_length_in_seconds))
+    #sample_hps = Hyperparams(dict(mode=mode, codes_file=codes_file, audio_file=audio_file, prompt_length_in_seconds=prompt_length_in_seconds))
 
-    #with t.no_grad():
-    train(model, device, hps, sample_hps)
+ 
+    train(model, device, hps)
 
 if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = "1"

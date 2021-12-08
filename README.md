@@ -47,7 +47,7 @@ We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance vi
 ## 3. Training
 
 ### 3.1 Training w/ AIST++
-To train the D2M-GAN on 
+To train the D2M-GAN on the AIST++ dataset.
 
 #python music_gan_top.py --model=5b --name=sample_5b --levels=3 --sample_length_in_seconds=20 --total_sample_length_in_seconds=180 --sr=44100 --n_samples=6 --hop_fraction=0.5,0.5,0.125
 
@@ -56,12 +56,26 @@ python
 ```
 
 ### 3.2 Training w/ TikTok Dance-Music
+To train the D2M-GAN on the TikTok Dance-Music dataset.
+
+```
+python
+```
+
 
 ## 4. Generation
 
+After finish training the **D2M-GAN**, run the following command to generate the music samples.
+
+```
+python 
+```
+
+
 ## 5. Project Page and Pre-trained models
 For qualitative examples of generated music, please refer to our project page.
-We also provide 
+<!-- We also provide our pre-trained models. -->
+
 
 ## 6. Citation
 Please consider citing our paper if you find it useful.
