@@ -1,1 +1,1 @@
-from v2vq.interface import load_model, MelVocoder
+from d2m.interface import load_model, MelVocoder

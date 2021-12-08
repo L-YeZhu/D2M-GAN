@@ -155,9 +155,6 @@ class Generator(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x):
-        #print("check x in generator", x.size()) #(16,80,32)
-        #print("check x after layer3&4", self.model(x).size())
-        #exit()
         return self.model(x)
 
 

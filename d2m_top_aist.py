@@ -19,11 +19,10 @@ from jukebox.utils.sample_utils import split_batch, get_starts
 from jukebox.utils.dist_utils import print_once
 import fire
 import librosa
-import soundfile as sf
-import torchlibrosa as tl
+import soundfile as sf 
 
 from d2m.dataset import VAMDataset
-from d2m.v2vq_modules import vqEncoder_top, Discriminator, motion_encoder, Audio2Mel
+from d2m.d2m_modules import vqEncoder_top, Discriminator, motion_encoder, Audio2Mel
 from d2m.utils import save_sample
 
 
@@ -171,8 +170,7 @@ def train(model, device, hps, sample_hps):
         print("check output from vqvae", gt_xs[2].size(), quantised_xs[0].size(), gt_code_error, audio_error)
         sf.write("/home/zhuye/musicgen/samples/original_%d.wav" % (i+1), audio.detach().cpu().numpy(), 22050)
         sf.write("/home/zhuye/musicgen/samples/vqvae_%d.wav" % (i+1), out.detach().cpu().numpy(), 22050)
-        #save_sample(root / ("original_%d.wav" % i), 22050, audio)
-        #writer.add_audio("original/sample_%d.wav" % i, audio, 0, sample_rate=22050)
+
         if i > 8:
             break
     print("finish dumping samples", len(test_audio), len(test_video))

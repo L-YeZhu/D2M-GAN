@@ -20,7 +20,8 @@ Since our proposed **D2M-GAN** utilizes the VQ-VAE decoder of JukeBox for synthe
 conda create --name d2m python=3.8
 source activate d2m
 conda install mpi4py==3.0.3
-conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=10.2 -c pytorch
+# conda install pytorch==1.7.1 torchvision==0.8.2 torchaudio==0.7.2 cudatoolkit=11.0 -c pytorch
+conda install pytorch torchvision torchaudio cudatoolkit=11.3 -c pytorch
 git clone https://github.com/L-YeZhu/D2M-GAN.git
 cd D2M-GAN
 pip install -r requirements.txt
@@ -47,6 +48,12 @@ We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance vi
 
 ### 3.1 Training w/ AIST++
 To train the D2M-GAN on 
+
+#python music_gan_top.py --model=5b --name=sample_5b --levels=3 --sample_length_in_seconds=20 --total_sample_length_in_seconds=180 --sr=44100 --n_samples=6 --hop_fraction=0.5,0.5,0.125
+
+```
+python 
+```
 
 ### 3.2 Training w/ TikTok Dance-Music
 

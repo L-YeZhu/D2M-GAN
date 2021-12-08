@@ -1,4 +1,4 @@
-from v2vq.modules import Generator, Audio2Mel
+from d2m.modules import Generator, Audio2Mel
 
 from pathlib import Path
 import yaml
@@ -13,13 +13,13 @@ def get_default_device():
         return "cpu"
 
 
-def load_model(v2vq_path, device=get_default_device()):
+def load_model(d2m_path, device=get_default_device()):
     """
     Args:
         mel2wav_path (str or Path): path to the root folder of dumped text2mel
         device (str or torch.device): device to load the model
     """
-    root = Path(v2vq_path)
+    root = Path(d2m_path)
     with open(root / "args.yml", "r") as f:
         args = yaml.load(f, Loader=yaml.FullLoader)
     netG = Generator(args.n_mel_channels, args.ngf, args.n_residual_layers).to(device)
@@ -42,9 +42,9 @@ class MelVocoder:
             netG.load_state_dict(
                 torch.load(root / f"models/{model_name}.pt", map_location=device)
             )
-            self.v2vq = netG
+            self.d2m = netG
         else:
-            self.v2vq = load_model(path, device)
+            self.d2m = load_model(path, device)
         self.device = device
 
     def __call__(self, audio):
@@ -67,4 +67,4 @@ class MelVocoder:
 
         """
         with torch.no_grad():
-            return self.v2vq(mel.to(self.device)).squeeze(1)
+            return self.d2m(mel.to(self.device)).squeeze(1)

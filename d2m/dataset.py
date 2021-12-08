@@ -9,7 +9,7 @@ from pathlib import Path
 import numpy as np
 import random
 from PIL import Image
-import cv2
+
 
 def files_to_list(filename):
     """
