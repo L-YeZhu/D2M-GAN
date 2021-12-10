@@ -32,12 +32,13 @@ def parse_args():
     #parser.add_argument("--save_path", required=True)
     parser.add_argument("--load_path", default=None)
     parser.add_argument("--model", default='5b')
+    parser.add_argument("--save_sample_path", required=True)
+    parser.add_argument("--model_level", required=True)
 
-    parser.add_argument("--n_mel_channels", type=int, default=80)
     parser.add_argument("--ngf", type=int, default=32)
     parser.add_argument("--n_residual_layers", type=int, default=3)
 
-    parser.add_argument("--ndf", type=int, default=16)
+    parser.add_argument("--ndf", type=int, default=32)
     parser.add_argument("--num_D", type=int, default=3)
     parser.add_argument("--n_layers_D", type=int, default=4)
     parser.add_argument("--downsamp_factor", type=int, default=4)
@@ -46,7 +47,6 @@ def parse_args():
 
     parser.add_argument("--data_path", default=None, type=Path)
     parser.add_argument("--batch_size", type=int, default=12)
-    parser.add_argument("--seq_len", type=int, default=8192)
 
     parser.add_argument("--epochs", type=int, default=3000)
     parser.add_argument("--log_interval", type=int, default=100)
@@ -82,14 +82,23 @@ def train(model, device, hps):
     batch_size = 16
     args = parse_args()
     writer = SummaryWriter(str(root))
-    print(args)
-    exit()
+    save_sample_path = args.save_sample_path
+    n_test_samples = args.n_test_samples
+    model_level = args.model_level
+    if model_level == "high":
+        seq_len = 44032
+        level_s = 2
+        level_e = 3
+    if model_level == "low":
+        seq_len = 44096
+        level_s = 1
+        level_e = 2
 
     #### create the model ######
-    num_D = 3
-    ndf = 32
-    n_layers_D = 4
-    downsamp_factor = 4
+    num_D = args.num_D
+    ndf = args.ndf
+    n_layers_D = args.n_layers_D
+    downsamp_factor = args.downsamp_factor
 
     vqvae= make_vae_model(model, device, hps).cuda()
     encoder = vqEncoder_top().cuda()
@@ -108,28 +117,18 @@ def train(model, device, hps):
     t_param = list(mencoder.parameters()) + list(encoder.parameters())
     optG = t.optim.Adam(t_param, lr=1e-4, betas=(0.5, 0.9))
     optD = t.optim.Adam(netD.parameters(), lr=1e-4, betas=(0.5, 0.9))
-    #vqvae.load_state_dict(t.load("/data/zhuye/music_results/d2m_models/logs_top/top_vqvae1.pt"))
+    vqvae.load_state_dict(t.load("./models/vqvae_high.pt"))
     vqvae.eval()
     print("Finish creating the optimizer.")
-
-    #### continue training ####
-    #load_root = '/home/zhuye/musicgen/logs'
-    #mencoder.load_state_dict(t.load("/home/zhuye/musicgen/logs_top/mencoder.pt"))
-    #encoder.load_state_dict(t.load("/home/zhuye/musicgen/logs_top/netG.pt"))
-    #optG.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/optG.pt"))
-    #netD.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/netD.pt"))
-    #optD.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/optD.pt"))
-    # print("Now continue training...")
 
 
 
     #### creat data loader ####
-    root = '/home/zhuye/musicgen'
     va_train_set = VAMDataset( audio_files = './dataset/aist_audio_train_segment.txt', video_files = './dataset/aist_video_train_segment.txt', genre_label = './dataset/train_genre.npy', motion_files = './dataset/aist_motion_train_segment.txt')
     va_train_loader = DataLoader(va_train_set, batch_size = batch_size, num_workers=4, shuffle=True)
     va_test_set = VAMDataset( audio_files = './dataset/aist_audio_test_segment.txt', video_files = './dataset/aist_video_test_segment.txt', genre_label = './dataset/test_genre.npy', motion_files = './dataset/aist_motion_test_segment.txt', augment=False)
     va_test_loader = DataLoader(va_test_set, batch_size = 1)
-    print("finish data loader", len(va_train_loader), len(va_test_loader)) 
+    print("Finish data loader", len(va_train_loader), len(va_test_loader)) 
     
 
     #### dumping original audio ####
@@ -143,24 +142,26 @@ def train(model, device, hps):
         test_audio.append(a_t)
         test_genre.append(genre.float().cuda())
         test_motion.append(m_t.float().cuda())
-        #print("label check", genre)
         gt_xs, zs_code = vqvae._encode(a_t.transpose(1,2))
         zs_middle = []
         zs_middle.append(zs_code[2])
-        quantised_xs, out = vqvae._decode(zs_middle, start_level=2, end_level=3)
+        quantised_xs, out = vqvae._decode(zs_middle, start_level=level_s, end_level=level_e)
         audio = a_t.squeeze()
         out = out.squeeze()#.detach().cpu().numpy()
         gt_code_error = F.l1_loss(gt_xs[2], quantised_xs[0])
-        print("outputsize", np.shape(out), np.shape(audio[0:44032]))
-        audio_error = F.l1_loss(audio[0:44032], out)
-        print("check output from vqvae", gt_xs[2].size(), quantised_xs[0].size(), gt_code_error, audio_error)
-        sf.write("/home/zhuye/musicgen/samples/original_%d.wav" % (i+1), audio.detach().cpu().numpy(), 22050)
-        sf.write("/home/zhuye/musicgen/samples/vqvae_%d.wav" % (i+1), out.detach().cpu().numpy(), 22050)
+        audio_error = F.l1_loss(audio[0:seq_len], out)
+        if not os.path.exists(save_sample_path):
+            os.makedirs(save_sample_path)
+        sample_original = 'original_' + str(i+1) + '.wav'
+        sample_vqvae = 'vqvae_'+ str(i+1) + '.wav'
+        sample_original = os.path.join(save_sample_path,sample_original)
+        sample_vqvae = os.path.join(save_sample_path,sample_vqvae) 
+        sf.write(sample_original, audio.detach().cpu().numpy(), 22050)   
+        sf.write(sample_vqvae, out.detach().cpu().numpy(), 22050)
 
-        if i > 8:
+        if i > n_test_samples:
             break
-    print("finish dumping samples", len(test_audio), len(test_video))
-    #exit()
+    print("Finish dumping samples", len(test_audio), len(test_video))
 
     #### start training ###
     costs = []
@@ -195,16 +196,16 @@ def train(model, device, hps):
                 zs_pred = vqvae.bottleneck.encode(xs_code)
                 zs_pred_code = []
                 zs_pred_code.append(zs_pred[level])
-                xs_quantised_pred, audio_pred = vqvae._decode(zs_pred_code, start_level=2, end_level=3) # list
+                xs_quantised_pred, audio_pred = vqvae._decode(zs_pred_code, start_level=level_s, end_level=level_e) # list
                 gt_code = []
                 gt_code.append(zs_t[level])
-                xs_quantised_gt, gt_audio = vqvae._decode(gt_code, start_level=2, end_level=3)
+                xs_quantised_gt, gt_audio = vqvae._decode(gt_code, start_level=level_s, end_level=level_e)
 
             
             # calculate errors
             xs_error = F.l1_loss(xs_t[level].view(batch_size, 1, -1), xs_pred.view(batch_size, 1,-1))
             code_error = F.l1_loss(xs_quantised_gt[0].view(batch_size, 1, -1), xs_pred.view(batch_size, 1, -1))
-            audio_error = F.l1_loss(a_t[:,:,0:44032].transpose(1,2), audio_pred)
+            audio_error = F.l1_loss(a_t[:,:,0:seq_len].transpose(1,2), audio_pred)
             mel_t = fft(a_t)
             mel_pred = fft(audio_pred.transpose(1,2))
             mel_error = F.l1_loss(mel_t, mel_pred)
@@ -213,8 +214,6 @@ def train(model, device, hps):
             # train discriminator
             xs_pred = xs_pred.view(batch_size,1, -1)
             xs_tmp = xs_t[level].view(batch_size,1, -1)
-            #print("check pred input for Dis.", xs_pred.size(), t.min(xs_pred), t.max(xs_pred))
-            #print("check gt input for Dis.", xs_tmp.size(), t.min(xs_tmp), t.max(xs_tmp))
             D_fake_det = netD(xs_pred.cuda().detach(), genre)
             D_real = netD(xs_tmp.cuda(), genre)
             loss_D = 0
@@ -246,7 +245,7 @@ def train(model, device, hps):
             mencoder.zero_grad()
             encoder.zero_grad()
             
-            (loss_G + 3 * loss_feat + 5 * xs_error + 8 * code_error + 0 *audio_error + 15 * mel_error).backward()
+            (loss_G + 3 * loss_feat + 5 * xs_error + 8 * code_error + 40 *audio_error + 15 * mel_error).backward()
             optG.step()
 
 
@@ -278,18 +277,20 @@ def train(model, device, hps):
                         zs_pred = vqvae.bottleneck.encode(xs_code)
                         zs_pred_code = []
                         zs_pred_code.append(zs_pred[2])
-                        _,pred_audio = vqvae._decode(zs_pred_code,start_level=2,end_level=3)
+                        _,pred_audio = vqvae._decode(zs_pred_code,start_level=level_s,end_level=level_e)
                         pred_audio = pred_audio.cpu().detach()#.numpy()
-                        print("check syn_error for testing sample",i, t.min(pred_xs), t.max(pred_xs), t.min(zs_pred[2]), t.max(zs_pred[2]))
+                        # print("testing sample",i, t.min(pred_xs), t.max(pred_xs), t.min(zs_pred[2]), t.max(zs_pred[2]))
                         pred_audio = pred_audio.squeeze().detach().cpu().numpy()
-                        sf.write("/home/zhuye/musicgen/samples/generated_%d.wav" % (i+1), pred_audio, 22050)
+                        sample_generated = 'vqvae_'+ str(i+1) + '.wav'
+                        sample_generated = os.path.join(save_sample_path,sample_generated)
+                        sf.write(sample_generated, pred_audio, 22050)
 
-                t.save(mencoder.state_dict(), "/home/zhuye/musicgen/logs/mencoder.pt")
-                t.save(encoder.state_dict(), "/home/zhuye/musicgen/logs/netG.pt")
-                t.save(optG.state_dict(), "/home/zhuye/musicgen/logs/optG.pt")
+                t.save(mencoder.state_dict(), "./logs/mencoder.pt")
+                t.save(encoder.state_dict(), "./logs/netG.pt")
+                t.save(optG.state_dict(), "./logs/optG.pt")
 
-                t.save(netD.state_dict(), "/home/zhuye/musicgen/logs/netD.pt")
-                t.save(optD.state_dict(), "/home/zhuye/musicgen/logs/optD.pt")
+                t.save(netD.state_dict(), "./logs/netD.pt")
+                t.save(optD.state_dict(), "./logs/optD.pt")
 
 
                 print("Took %5.4fs to generate samples" % (time.time() - st))
@@ -321,8 +322,6 @@ def run(model, mode='ancestral', codes_file=None, audio_file=None, prompt_length
     rank, local_rank, device = setup_dist_from_mpi(port=port)
     hps = Hyperparams(**kwargs)
     #sample_hps = Hyperparams(dict(mode=mode, codes_file=codes_file, audio_file=audio_file, prompt_length_in_seconds=prompt_length_in_seconds))
-
- 
     train(model, device, hps)
 
 if __name__ == '__main__':
