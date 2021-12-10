@@ -31,6 +31,7 @@ def parse_args():
     parser = argparse.ArgumentParser()
     #parser.add_argument("--save_path", required=True)
     parser.add_argument("--load_path", default=None)
+    parser.add_argument("--model", default='5b')
 
     parser.add_argument("--n_mel_channels", type=int, default=80)
     parser.add_argument("--ngf", type=int, default=32)
@@ -76,11 +77,13 @@ def load_entire(audio_files, hps):
 
 # Generate and save samples, alignment, and webpage for visualization.
 def train(model, device, hps):
-    ##from jukebox.lyricdict import poems, gpt_2_lyrics
+
     root = './logs'
     batch_size = 16
-    #args = parse_args()
+    args = parse_args()
     writer = SummaryWriter(str(root))
+    print(args)
+    exit()
 
     #### create the model ######
     num_D = 3
@@ -107,6 +110,7 @@ def train(model, device, hps):
     optD = t.optim.Adam(netD.parameters(), lr=1e-4, betas=(0.5, 0.9))
     #vqvae.load_state_dict(t.load("/data/zhuye/music_results/d2m_models/logs_top/top_vqvae1.pt"))
     vqvae.eval()
+    print("Finish creating the optimizer.")
 
     #### continue training ####
     #load_root = '/home/zhuye/musicgen/logs'
@@ -115,15 +119,15 @@ def train(model, device, hps):
     #optG.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/optG.pt"))
     #netD.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/netD.pt"))
     #optD.load_state_dict(t.load("/home/zhuye/musicgen/logs_1017/optD.pt"))
-    print("Now continue training...")
+    # print("Now continue training...")
 
 
 
     #### creat data loader ####
     root = '/home/zhuye/musicgen'
-    va_train_set = VAMDataset( audio_files = '/home/zhuye/musicgen/aist_audio_train_segment.txt', video_files = '/home/zhuye/musicgen/aist_video_train_segment.txt', genre_label = '/home/zhuye/musicgen/train_genre.npy', motion_files = '/home/zhuye/musicgen/aist_motion_train_segment.txt')
+    va_train_set = VAMDataset( audio_files = './dataset/aist_audio_train_segment.txt', video_files = './dataset/aist_video_train_segment.txt', genre_label = './dataset/train_genre.npy', motion_files = './dataset/aist_motion_train_segment.txt')
     va_train_loader = DataLoader(va_train_set, batch_size = batch_size, num_workers=4, shuffle=True)
-    va_test_set = VAMDataset( audio_files = '/home/zhuye/musicgen/aist_audio_test_segment.txt', video_files = '/home/zhuye/musicgen/aist_video_test_segment.txt', genre_label = '/home/zhuye/musicgen/test_genre.npy', motion_files = '/home/zhuye/musicgen/aist_motion_test_segment.txt', augment=False)
+    va_test_set = VAMDataset( audio_files = './dataset/aist_audio_test_segment.txt', video_files = './dataset/aist_video_test_segment.txt', genre_label = './dataset/test_genre.npy', motion_files = './dataset/aist_motion_test_segment.txt', augment=False)
     va_test_loader = DataLoader(va_test_set, batch_size = 1)
     print("finish data loader", len(va_train_loader), len(va_test_loader)) 
     
