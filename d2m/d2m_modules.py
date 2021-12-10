@@ -265,7 +265,7 @@ class Encoder_top(nn.Module):
 
 
 
-class vqEncoder_top(nn.Module):
+class vqEncoder_high(nn.Module):
     def __init__(self):
         super().__init__()
         self.lin = nn.Linear(1024+2048+256, 2058)
@@ -392,7 +392,7 @@ class motion_encoder(nn.Module):
 
 
 
-class vqEncoder_middle(nn.Module):
+class vqEncoder_low(nn.Module):
     def __init__(self):
         super().__init__()
         #ratios = [8, 8, 2, 2]

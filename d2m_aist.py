@@ -22,7 +22,7 @@ import librosa
 import soundfile as sf 
 
 from d2m.dataset import VAMDataset
-from d2m.d2m_modules import vqEncoder_top, Discriminator, motion_encoder, Audio2Mel
+from d2m.d2m_modules import vqEncoder_high,vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
 from d2m.utils import save_sample
 
 
@@ -68,10 +68,12 @@ def train(model, device, hps):
     n_test_samples = args.n_test_samples
     model_level = args.model_level
     if model_level == "high":
+        code_level = 2
         seq_len = 44032
         level_s = 2
         level_e = 3
     if model_level == "low":
+        code_level = 1
         seq_len = 44096
         level_s = 1
         level_e = 2
@@ -83,7 +85,14 @@ def train(model, device, hps):
     downsamp_factor = args.downsamp_factor
 
     vqvae= make_vae_model(model, device, hps).cuda()
-    encoder = vqEncoder_top().cuda()
+    if model_level == "high":
+        encoder = vqEncoder_high().cuda()
+        vqvae.load_state_dict(t.load("./models/vqvae_high.pt"))
+        vqvae.eval()
+    if model_level == "low":
+        encoder = vqEncoder_low().cuda()
+        vqvae.load_state_dict(t.load("./models/vqvae_low.pt"))
+        vqvae.eval()
     mencoder = motion_encoder().cuda()
     netD = Discriminator(num_D, ndf, n_layers_D, downsamp_factor).cuda()
     fft = Audio2Mel(n_mel_channels=128).cuda()
@@ -99,8 +108,6 @@ def train(model, device, hps):
     t_param = list(mencoder.parameters()) + list(encoder.parameters())
     optG = t.optim.Adam(t_param, lr=1e-4, betas=(0.5, 0.9))
     optD = t.optim.Adam(netD.parameters(), lr=1e-4, betas=(0.5, 0.9))
-    vqvae.load_state_dict(t.load("./models/vqvae_high.pt"))
-    vqvae.eval()
     print("Finish creating the optimizer.")
 
 
@@ -126,11 +133,11 @@ def train(model, device, hps):
         test_motion.append(m_t.float().cuda())
         gt_xs, zs_code = vqvae._encode(a_t.transpose(1,2))
         zs_middle = []
-        zs_middle.append(zs_code[2])
+        zs_middle.append(zs_code[code_level])
         quantised_xs, out = vqvae._decode(zs_middle, start_level=level_s, end_level=level_e)
         audio = a_t.squeeze()
         out = out.squeeze()#.detach().cpu().numpy()
-        gt_code_error = F.l1_loss(gt_xs[2], quantised_xs[0])
+        gt_code_error = F.l1_loss(gt_xs[code_level], quantised_xs[0])
         audio_error = F.l1_loss(audio[0:seq_len], out)
         if not os.path.exists(save_sample_path):
             os.makedirs(save_sample_path)
@@ -170,22 +177,22 @@ def train(model, device, hps):
             
             with t.no_grad():
                 xs_t, zs_t = vqvae._encode(a_t.transpose(1,2))
-                level = 2 # 0, 1, 2 -> 2756, 689, 172
+                # level = 2 # 0, 1, 2 -> 2756, 689, 172
                 ## pred output
                 xs_code = []
                 for l in range(3):
                     xs_code.append(xs_pred)
                 zs_pred = vqvae.bottleneck.encode(xs_code)
                 zs_pred_code = []
-                zs_pred_code.append(zs_pred[level])
+                zs_pred_code.append(zs_pred[code_level])
                 xs_quantised_pred, audio_pred = vqvae._decode(zs_pred_code, start_level=level_s, end_level=level_e) # list
                 gt_code = []
-                gt_code.append(zs_t[level])
+                gt_code.append(zs_t[code_level])
                 xs_quantised_gt, gt_audio = vqvae._decode(gt_code, start_level=level_s, end_level=level_e)
 
             
             # calculate errors
-            xs_error = F.l1_loss(xs_t[level].view(batch_size, 1, -1), xs_pred.view(batch_size, 1,-1))
+            xs_error = F.l1_loss(xs_t[code_level].view(batch_size, 1, -1), xs_pred.view(batch_size, 1,-1))
             code_error = F.l1_loss(xs_quantised_gt[0].view(batch_size, 1, -1), xs_pred.view(batch_size, 1, -1))
             audio_error = F.l1_loss(a_t[:,:,0:seq_len].transpose(1,2), audio_pred)
             mel_t = fft(a_t)
@@ -195,7 +202,7 @@ def train(model, device, hps):
             
             # train discriminator
             xs_pred = xs_pred.view(batch_size,1, -1)
-            xs_tmp = xs_t[level].view(batch_size,1, -1)
+            xs_tmp = xs_t[code_level].view(batch_size,1, -1)
             D_fake_det = netD(xs_pred.cuda().detach(), genre)
             D_real = netD(xs_tmp.cuda(), genre)
             loss_D = 0
@@ -258,7 +265,7 @@ def train(model, device, hps):
                             xs_code.append(pred_xs)
                         zs_pred = vqvae.bottleneck.encode(xs_code)
                         zs_pred_code = []
-                        zs_pred_code.append(zs_pred[2])
+                        zs_pred_code.append(zs_pred[code_level])
                         _,pred_audio = vqvae._decode(zs_pred_code,start_level=level_s,end_level=level_e)
                         pred_audio = pred_audio.cpu().detach()#.numpy()
                         # print("testing sample",i, t.min(pred_xs), t.max(pred_xs), t.min(zs_pred[2]), t.max(zs_pred[2]))
