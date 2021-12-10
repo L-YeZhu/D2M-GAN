@@ -201,11 +201,6 @@ class VADataset(torch.utils.data.Dataset):
         video_filename = self.video_files[index]
         video = self.load_img_to_torch(video_filename)
 
-        # Read label
-        #beat = self.labels[index]
-        # read genre
-        #genre = self.genre[index]
-
         return audio.unsqueeze(0), video
 
 
@@ -226,26 +221,6 @@ class VADataset(torch.utils.data.Dataset):
     def load_img_to_torch(self, full_path):
         #print("path check", full_path)
         data = np.load(full_path)
-        #print("check visual input", np.shape(data) )
-        #data = Image.open(full_path)
-        #print("check img data", np.shape(data))
-        #store original image
-        #data.save('test.jpg')
-        #data = data.resize((256,256))
-        #data.save('test_resize.jpg')
-        #data = np.asarray(data, dtype=np.float64)
-        #exit()
-        #noise = np.random.normal(0,1,data.size)
-        #noise = noise.reshape(data.shape[0], data.shape[1], data.shape[2])
-        #print("noise check", np.shape(data), np.shape(noise), noise)
-        #data[:,:,0] += noise[:,:,0]
-        #data[:,:,1] += noise[:,:,1]
-        #data[:,:,2] += noise[:,:,2]
-        #img_noise = cv2.add(data, noise)
-
-        #data = Image.fromarray(data)
-        #data.save('test_noise.jpg')
-        #exit()
         return torch.from_numpy(data).float()
 
 

@@ -34,6 +34,7 @@ def parse_args():
     parser.add_argument("--model", default='5b')
     parser.add_argument("--save_sample_path", required=True)
     parser.add_argument("--model_level", required=True)
+    parser.add_argument("--log_path", default='./logs')
 
     parser.add_argument("--ngf", type=int, default=32)
     parser.add_argument("--n_residual_layers", type=int, default=3)
@@ -46,7 +47,7 @@ def parse_args():
     parser.add_argument("--cond_disc", action="store_true")
 
     parser.add_argument("--data_path", default=None, type=Path)
-    parser.add_argument("--batch_size", type=int, default=12)
+    parser.add_argument("--batch_size", type=int, default=16)
 
     parser.add_argument("--epochs", type=int, default=3000)
     parser.add_argument("--log_interval", type=int, default=100)
@@ -56,31 +57,12 @@ def parse_args():
     return args
 
 
-
-
-# load entire audio files
-def load_entire(audio_files, hps):
-    xs = []
-    #for audio_file in audio_files:
-    a, sr = librosa.load(audio_files, sr=22050, offset=0.0, mono=True)
-    if len(a.shape) == 1:
-        a = a.reshape((1,-1))
-    a = a.T # ct -> tc
-    xs.append(a)
-    #print(xs[0].dtype)
-    x = t.stack([t.from_numpy(x) for x in xs])
-    x = x.to('cuda', non_blocking=True)
-    return x
-
-
-
-
 # Generate and save samples, alignment, and webpage for visualization.
 def train(model, device, hps):
 
-    root = './logs'
-    batch_size = 16
     args = parse_args()
+    root = args.log_path
+    batch_size = args.batch_size
     writer = SummaryWriter(str(root))
     save_sample_path = args.save_sample_path
     n_test_samples = args.n_test_samples
@@ -281,7 +263,7 @@ def train(model, device, hps):
                         pred_audio = pred_audio.cpu().detach()#.numpy()
                         # print("testing sample",i, t.min(pred_xs), t.max(pred_xs), t.min(zs_pred[2]), t.max(zs_pred[2]))
                         pred_audio = pred_audio.squeeze().detach().cpu().numpy()
-                        sample_generated = 'vqvae_'+ str(i+1) + '.wav'
+                        sample_generated = 'generated_'+ str(i+1) + '.wav'
                         sample_generated = os.path.join(save_sample_path,sample_generated)
                         sf.write(sample_generated, pred_audio, 22050)
 
