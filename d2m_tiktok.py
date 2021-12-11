@@ -19,10 +19,10 @@ from jukebox.utils.sample_utils import split_batch, get_starts
 from jukebox.utils.dist_utils import print_once
 import fire
 import librosa
-import soundfile as sf 
+import soundfile as sf
 
-from d2m.dataset import VAMDataset
-from d2m.d2m_modules import vqEncoder_high,vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
+from d2m.dataset import VAMDataset, VADataset
+from d2m.d2m_modules_tiktok import vqEncoder_high, vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
 from d2m.utils import save_sample
 
 
@@ -48,6 +48,7 @@ def parse_args():
 
     parser.add_argument("--data_path", default=None, type=Path)
     parser.add_argument("--batch_size", type=int, default=16)
+    parser.add_argument("--seq_len", type=int, default=8192)
 
     parser.add_argument("--epochs", type=int, default=3000)
     parser.add_argument("--log_interval", type=int, default=100)
@@ -57,7 +58,8 @@ def parse_args():
     return args
 
 
-# Generate and save samples, alignment, and webpage for visualization.
+
+
 def train(model, device, hps):
 
     args = parse_args()
@@ -93,6 +95,10 @@ def train(model, device, hps):
         encoder = vqEncoder_low().cuda()
         vqvae.load_state_dict(t.load("./models/vqvae_low.pt"))
         vqvae.eval()
+
+
+    vqvae= make_vae_model(model, device, hps).cuda()
+    encoder = vqEncoder_top().cuda()
     mencoder = motion_encoder().cuda()
     netD = Discriminator(num_D, ndf, n_layers_D, downsamp_factor).cuda()
     fft = Audio2Mel(n_mel_channels=128).cuda()
@@ -101,8 +107,6 @@ def train(model, device, hps):
     print(encoder)
     print(netD)
 
-
-
     
     #### create optimizer #####
     t_param = list(mencoder.parameters()) + list(encoder.parameters())
@@ -110,12 +114,10 @@ def train(model, device, hps):
     optD = t.optim.Adam(netD.parameters(), lr=1e-4, betas=(0.5, 0.9))
     print("Finish creating the optimizer.")
 
-
-
     #### creat data loader ####
-    va_train_set = VAMDataset( audio_files = './dataset/aist_audio_train_segment.txt', video_files = './dataset/aist_video_train_segment.txt', genre_label = './dataset/train_genre.npy', motion_files = './dataset/aist_motion_train_segment.txt')
+    va_train_set = VADataset( audio_files = './dataset/tiktok_audio_train_segment.txt', video_files = './dataset/tiktok_video_train_segment.txt')
     va_train_loader = DataLoader(va_train_set, batch_size = batch_size, num_workers=4, shuffle=True)
-    va_test_set = VAMDataset( audio_files = './dataset/aist_audio_test_segment.txt', video_files = './dataset/aist_video_test_segment.txt', genre_label = './dataset/test_genre.npy', motion_files = './dataset/aist_motion_test_segment.txt', augment=False)
+    va_test_set = VADataset( audio_files = './dataset/tiktok_audio_test_segment.txt', video_files = './dataset/tiktok_video_test_segment.txt', augment=False)
     va_test_loader = DataLoader(va_test_set, batch_size = 1)
     print("Finish data loader", len(va_train_loader), len(va_test_loader)) 
     
@@ -123,14 +125,11 @@ def train(model, device, hps):
     #### dumping original audio ####
     test_video = []
     test_audio = []
-    test_genre = []
     test_motion = []
-    for i, (a_t, v_t, m_t, genre) in enumerate(va_test_loader):
+    for i, (a_t, v_t) in enumerate(va_test_loader):
         a_t = a_t.float().cuda()
         test_video.append(v_t.float().cuda())
         test_audio.append(a_t)
-        test_genre.append(genre.float().cuda())
-        test_motion.append(m_t.float().cuda())
         gt_xs, zs_code = vqvae._encode(a_t.transpose(1,2))
         zs_middle = []
         zs_middle.append(zs_code[code_level])
@@ -147,7 +146,6 @@ def train(model, device, hps):
         sample_vqvae = os.path.join(save_sample_path,sample_vqvae) 
         sf.write(sample_original, audio.detach().cpu().numpy(), 22050)   
         sf.write(sample_vqvae, out.detach().cpu().numpy(), 22050)
-
         if i > n_test_samples:
             break
     print("Finish dumping samples", len(test_audio), len(test_video))
@@ -160,19 +158,17 @@ def train(model, device, hps):
     best_xs_reconst = 100000 
     steps = 0
     for epoch in range(1, 3000 + 1):
-        for iterno, (a_t, v_t, m_t, genre) in enumerate(va_train_loader):
-            # get video, audio and beat data
+        for iterno, (a_t, v_t) in enumerate(va_train_loader):
+            # get video, audio and motion data
             a_t = a_t.float().cuda()
-            v_t = v_t.float().cuda() 
-            m_t = m_t.float().cuda()
-            genre = genre.float().cuda()
+            v_t = v_t.float().cuda() # nhwc -> ncwh
+            #m_t = m_t.float().cuda()
 
 
             # get output from encoder
-            mx = mencoder(m_t)
-            fuse_x = t.cat((mx, v_t), 2)
-            xs_pred = encoder(fuse_x, genre, batch_size)
-
+            #mx = mencoder(m_t)
+            #fuse_x = t.cat((mx, v_t), 2)
+            xs_pred = encoder(v_t, batch_size)
 
             
             with t.no_grad():
@@ -186,6 +182,7 @@ def train(model, device, hps):
                 zs_pred_code = []
                 zs_pred_code.append(zs_pred[code_level])
                 xs_quantised_pred, audio_pred = vqvae._decode(zs_pred_code, start_level=level_s, end_level=level_e) # list
+                ## gt output
                 gt_code = []
                 gt_code.append(zs_t[code_level])
                 xs_quantised_gt, gt_audio = vqvae._decode(gt_code, start_level=level_s, end_level=level_e)
@@ -203,8 +200,8 @@ def train(model, device, hps):
             # train discriminator
             xs_pred = xs_pred.view(batch_size,1, -1)
             xs_tmp = xs_t[code_level].view(batch_size,1, -1)
-            D_fake_det = netD(xs_pred.cuda().detach(), genre)
-            D_real = netD(xs_tmp.cuda(), genre)
+            D_fake_det = netD(xs_pred.cuda().detach())
+            D_real = netD(xs_tmp.cuda())
             loss_D = 0
             for scale in D_fake_det:
                 loss_D += F.relu(1 + scale[-1]).mean()
@@ -218,7 +215,7 @@ def train(model, device, hps):
                 optD.step()
 
             # train generator
-            D_fake = netD(xs_pred.cuda(), genre)
+            D_fake = netD(xs_pred.cuda())
             loss_G = 0
             for scale in D_fake:
                 loss_G += -scale[-1].mean()
@@ -231,13 +228,11 @@ def train(model, device, hps):
                 for j in range(len(D_fake[i]) - 1):
                     loss_feat += wt * F.l1_loss(D_fake[i][j], D_real[i][j].detach())
             
-            mencoder.zero_grad()
+            #mencoder.zero_grad()
             encoder.zero_grad()
             
             (loss_G + 3 * loss_feat + 5 * xs_error + 8 * code_error + 40 *audio_error + 15 * mel_error).backward()
             optG.step()
-
-
 
 
             # update tensorboard #
@@ -255,10 +250,8 @@ def train(model, device, hps):
             if steps % 1000 == 0:
                 st = time.time()
                 with t.no_grad():
-                    for i, (v_t, a_t, m_t, genre) in enumerate(zip(test_video, test_audio, test_motion, test_genre)):
-                        mx = mencoder(m_t)
-                        fuse_x = t.cat((mx, v_t),2)
-                        pred_xs = encoder(fuse_x, genre, batch_size)
+                    for i, (v_t, a_t) in enumerate(zip(test_video, test_audio)):
+                        pred_xs = encoder(v_t,1 )
                         xs_code = []
                         for j in range(3):
                             xs_code.append(pred_xs)
@@ -267,13 +260,13 @@ def train(model, device, hps):
                         zs_pred_code.append(zs_pred[code_level])
                         _,pred_audio = vqvae._decode(zs_pred_code,start_level=level_s,end_level=level_e)
                         pred_audio = pred_audio.cpu().detach()#.numpy()
-                        # print("testing sample",i, t.min(pred_xs), t.max(pred_xs), t.min(zs_pred[2]), t.max(zs_pred[2]))
                         pred_audio = pred_audio.squeeze().detach().cpu().numpy()
                         sample_generated = 'generated_'+ str(i+1) + '.wav'
                         sample_generated = os.path.join(save_sample_path,sample_generated)
                         sf.write(sample_generated, pred_audio, 22050)
 
-                t.save(mencoder.state_dict(), "./logs/mencoder.pt")
+
+                #t.save(mencoder.state_dict(), "/home/zhuye/musicgen/logs/mencoder.pt")
                 t.save(encoder.state_dict(), "./logs/netG.pt")
                 t.save(optG.state_dict(), "./logs/optG.pt")
 
@@ -300,8 +293,8 @@ def train(model, device, hps):
 
 
 
-    exit()
 
+    exit()
 
 
 
@@ -309,7 +302,9 @@ def run(model, mode='ancestral', codes_file=None, audio_file=None, prompt_length
     from jukebox.utils.dist_utils import setup_dist_from_mpi
     rank, local_rank, device = setup_dist_from_mpi(port=port)
     hps = Hyperparams(**kwargs)
-    #sample_hps = Hyperparams(dict(mode=mode, codes_file=codes_file, audio_file=audio_file, prompt_length_in_seconds=prompt_length_in_seconds))
+    # sample_hps = Hyperparams(dict(mode=mode, codes_file=codes_file, audio_file=audio_file, prompt_length_in_seconds=prompt_length_in_seconds))
+
+    #with t.no_grad():
     train(model, device, hps)
 
 if __name__ == '__main__':
