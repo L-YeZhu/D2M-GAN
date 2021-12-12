@@ -98,7 +98,7 @@ def generate(model, device, hps):
     # mencoder.load_state_dict(t.load("./logs/mencoder.pt"))
     # encoder.load_state_dict(t.load("./logs/netG.pt"))
 
-    print("*******Finish model loading!******")
+    print("*******Finish model loading******")
 
 
     #### creat data loader ####
@@ -151,6 +151,7 @@ def generate(model, device, hps):
         sample_generated = 'generated_'+ str(i+1) + '.wav'
         sample_generated = os.path.join(result_path,sample_generated)
         sf.write(sample_generated, pred_audio, 22050)
+        print("Generating testing sample:", i+1)
     print("*******Finish generating samples*******")
 
 def run(model, mode='ancestral', codes_file=None, audio_file=None, prompt_length_in_seconds=None, port=29500, **kwargs):
