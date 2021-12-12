@@ -66,7 +66,7 @@ python d2m_tiktok.py --model=5b --save_sample_path=./samples --model_level=high
 After finish training the **D2M-GAN**, run the following command to generate the music samples.
 
 ```
-python 
+python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result --model_level=high
 ```
 
 

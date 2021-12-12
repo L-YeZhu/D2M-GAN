@@ -155,6 +155,7 @@ class Generator(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x):
+
         return self.model(x)
 
 
@@ -173,20 +174,19 @@ class VAResnetBlock(nn.Module):
         self.shortcut = WNConv2d(dim, dim, kernel_size=1)
 
     def forward(self, x):
-        #return self.shortcut(x)
-        #return self.block(x)
+
         return self.shortcut(x) + self.block(x)
 
 
 
-class Encoder_top(nn.Module):
+class Encoder_high(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lin = nn.Linear(1024+2048+256, 2058)
+        self.lin = nn.Linear(1024, 2058)
         # !!!! this is for ablation only
         #self.lin = nn.Linear(1024+256, 2058)
-        self.genre_embed = nn.Embedding(10,256)
-        self.fc = nn.Linear(2048, 2048)
+        #self.genre_embed = nn.Embedding(10,256)
+        #self.fc = nn.Linear(2048, 2048)
 
         model = [
             nn.Conv1d(1, 32, kernel_size=6, stride=2, padding=1),
@@ -242,22 +242,10 @@ class Encoder_top(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x, genre):
+    def forward(self, x):
         x = x.float()
-        genre_idx = genre.nonzero(as_tuple=True)[1]
-        #print(genre.size(), genre_idx)
-        genre_emb = self.genre_embed(genre_idx)
-        genre_emb = genre_emb.unsqueeze(1)
-        #print("genre_emb", genre_emb.size())
-        #x = self.lin(x)
-        #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
-        #print("genre embed", label_embed.size(), label_embed)
-        x = torch.cat((x, genre_emb),2)
-        #print("input dim", x.size())
         x = self.lin(x)
         out = self.model(x)
-        out = self.fc(out.transpose(1,2))
-        #print("Generated output dim", out.size()) 
         return out
 
 
@@ -268,8 +256,11 @@ class Encoder_top(nn.Module):
 class vqEncoder_high(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lin = nn.Linear(1024+2048+256, 2058)
-        self.genre_embed = nn.Embedding(10,256)
+        ##self.lin = nn.Linear(1024+2048+256, 2058)
+        #self.fc = nn.Linear(456, 344)
+        # !!!! this is for ablation only
+        self.lin = nn.Linear(2048, 2058)
+        #self.genre_embed = nn.Embedding(10,256)
 
         model = [
             nn.Conv1d(1, 32, kernel_size=6, stride=2, padding=1),
@@ -318,15 +309,24 @@ class vqEncoder_high(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x, genre, batch_size):
+    def forward(self, x, batch_size):
         x = x.float()
-        genre_idx = genre.nonzero(as_tuple=True)[1]
-        genre_emb = self.genre_embed(genre_idx)
-        genre_emb = genre_emb.unsqueeze(1)
-        x = torch.cat((x, genre_emb),2)
+        #genre_idx = genre.nonzero(as_tuple=True)[1]
+        #print(genre.size(), genre_idx)
+        #genre_emb = self.genre_embed(genre_idx)
+        #genre_emb = genre_emb.unsqueeze(1)
+        #print("genre_emb", genre_emb.size())
+        #x = self.lin(x)
+        #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
+        #print("genre embed", label_embed.size(), label_embed)
+        #x = torch.cat((x, genre_emb),2)
+        #print("input dim", x.size())
         x = self.lin(x)
         out = self.model(x)
-
+        #print("check size", out.size())
+        #out = self.fc(out)
+        #out = out.view(batch_size, -1)
+        #print("Generated output dim", out.size()) 
         return out * 100
 
 
@@ -367,9 +367,12 @@ class motion_encoder(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x):
+        #print("check motion feature 0", x.size())
         x = self.lin1(x)
+        #print("check motion feature 1", x.size())
         out = self.model(x)
         out = self.lin2(out)
+        #print("check motion feature 2", out.size())
         return out
 
 
@@ -380,11 +383,15 @@ class motion_encoder(nn.Module):
 class vqEncoder_low(nn.Module):
     def __init__(self):
         super().__init__()
-
-        self.lin = nn.Linear(1024+2048+256,2048)
+        #ratios = [8, 8, 2, 2]
+        #self.hop_length = np.prod(ratios)
+        #mult = int(2 ** len(ratios))
+        #self.lin = nn.Linear(1024+2048+256,2048)
+        #self.lin = nn.Linear(2048+256,2048)
         self.fc = nn.Linear(1045,1378)
-
-        self.genre_embed = nn.Embedding(10,256)
+        #self.genre = genre
+        #self.beat = beat
+        #self.genre_embed = nn.Embedding(10,256)
 
 
         model = [
@@ -461,15 +468,15 @@ class vqEncoder_low(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x):
+    def forward(self, x, batch_size):
         x = x.float()
-        # genre_idx = genre.nonzero(as_tuple=True)[1]
-        # genre_emb = self.genre_embed(genre_idx)
-        # genre_emb = genre_emb.unsqueeze(1)
+        #genre_idx = genre.nonzero(as_tuple=True)[1]
+        #genre_emb = self.genre_embed(genre_idx)
+        #genre_emb = genre_emb.unsqueeze(1)
         #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
-        # x = torch.cat((x, genre_emb),2)
+        #x = torch.cat((x, genre_emb),2)
         #print("fuse x before encoder", x.size())
-        x = self.lin(x)
+        #x = self.lin(x)
         out = self.model(x)
         #out = out.view(batch_size, -1)
         out = 100*self.fc(out)
@@ -545,7 +552,7 @@ class Discriminator(nn.Module):
         self.downsample = nn.AvgPool1d(4, stride=2, padding=1, count_include_pad=False)
         self.apply(weights_init)
 
-    def forward(self, x, genre):
+    def forward(self, x):
         
         results = []
         for key, disc in self.model.items():

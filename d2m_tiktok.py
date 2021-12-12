@@ -96,9 +96,6 @@ def train(model, device, hps):
         vqvae.load_state_dict(t.load("./models/vqvae_low.pt"))
         vqvae.eval()
 
-
-    vqvae= make_vae_model(model, device, hps).cuda()
-    encoder = vqEncoder_top().cuda()
     mencoder = motion_encoder().cuda()
     netD = Discriminator(num_D, ndf, n_layers_D, downsamp_factor).cuda()
     fft = Audio2Mel(n_mel_channels=128).cuda()
