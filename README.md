@@ -39,7 +39,7 @@ We use the cross-modality data split for training and testing.
 
 
 ### 2.2 TikTok Dance-Music Dataset
-We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance videos. The current dataset has 445 dance videos with an average length of 12.5 seconds. This dataset can be downloaded from [here](), more detailed explanations can be found in our [project page]().
+We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance videos. The current dataset has 445 dance videos with an average length of 12.5 seconds. This dataset can be downloaded from our [project page]().
 
 
 
@@ -74,7 +74,7 @@ python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./
 For the TikTok dance-music dataset.
 
 ```
-python generate_tiktok.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result --model_level=high
+python generate_tik32	tok.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result --model_level=high
 ```
 
 ## 5. Project Page and 
