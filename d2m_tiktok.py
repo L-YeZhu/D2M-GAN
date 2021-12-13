@@ -21,7 +21,7 @@ import fire
 import librosa
 import soundfile as sf
 
-from d2m.dataset import VAMDataset, VADataset
+from d2m.dataset import TiktokDataset
 from d2m.d2m_modules_tiktok import vqEncoder_high, vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
 from d2m.utils import save_sample
 
@@ -112,9 +112,9 @@ def train(model, device, hps):
     print("Finish creating the optimizer.")
 
     #### creat data loader ####
-    va_train_set = VADataset( audio_files = './dataset/tiktok_audio_train_segment.txt', video_files = './dataset/tiktok_video_train_segment.txt')
+    va_train_set = TiktokDataset( audio_files = './dataset/tiktok_audio_train_segment.txt', video_files = './dataset/tiktok_video_train_segment.txt', motion_files = './dataset/tiktok_motion_train_segment.txt')
     va_train_loader = DataLoader(va_train_set, batch_size = batch_size, num_workers=4, shuffle=True)
-    va_test_set = VADataset( audio_files = './dataset/tiktok_audio_test_segment.txt', video_files = './dataset/tiktok_video_test_segment.txt', augment=False)
+    va_test_set = TiktokDataset( audio_files = './dataset/tiktok_audio_test_segment.txt', video_files = './dataset/tiktok_video_test_segment.txt',  motion_files = './dataset/tiktok_motion_test_segment.txt',augment=False)
     va_test_loader = DataLoader(va_test_set, batch_size = 1)
     print("Finish data loader", len(va_train_loader), len(va_test_loader)) 
     
