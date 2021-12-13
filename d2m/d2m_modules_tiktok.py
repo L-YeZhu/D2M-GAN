@@ -309,34 +309,20 @@ class vqEncoder_high(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x, batch_size):
+    def forward(self, x):
         x = x.float()
-        #genre_idx = genre.nonzero(as_tuple=True)[1]
-        #print(genre.size(), genre_idx)
-        #genre_emb = self.genre_embed(genre_idx)
-        #genre_emb = genre_emb.unsqueeze(1)
-        #print("genre_emb", genre_emb.size())
-        #x = self.lin(x)
-        #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
-        #print("genre embed", label_embed.size(), label_embed)
-        #x = torch.cat((x, genre_emb),2)
-        #print("input dim", x.size())
         x = self.lin(x)
         out = self.model(x)
-        #print("check size", out.size())
-        #out = self.fc(out)
-        #out = out.view(batch_size, -1)
-        #print("Generated output dim", out.size()) 
         return out * 100
 
 
 class motion_encoder(nn.Module):
     def __init__(self):
         super().__init__()
-        self.lin1 = nn.Linear(219, 800)
+        self.lin1 = nn.Linear(75, 800)
         self.lin2 = nn.Linear(786, 1024)
         model = [
-            nn.Conv1d(120, 256, kernel_size=6),
+            nn.Conv1d(60, 256, kernel_size=6),
             nn.ReLU(),
                 ]
         model += [ResnetBlock(256, dilation=3**0)]
@@ -389,9 +375,6 @@ class vqEncoder_low(nn.Module):
         #self.lin = nn.Linear(1024+2048+256,2048)
         #self.lin = nn.Linear(2048+256,2048)
         self.fc = nn.Linear(1045,1378)
-        #self.genre = genre
-        #self.beat = beat
-        #self.genre_embed = nn.Embedding(10,256)
 
 
         model = [
@@ -468,14 +451,8 @@ class vqEncoder_low(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x, batch_size):
+    def forward(self, x):
         x = x.float()
-        #genre_idx = genre.nonzero(as_tuple=True)[1]
-        #genre_emb = self.genre_embed(genre_idx)
-        #genre_emb = genre_emb.unsqueeze(1)
-        #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
-        #x = torch.cat((x, genre_emb),2)
-        #print("fuse x before encoder", x.size())
         #x = self.lin(x)
         out = self.model(x)
         #out = out.view(batch_size, -1)

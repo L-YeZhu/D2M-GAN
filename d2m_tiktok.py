@@ -123,7 +123,7 @@ def train(model, device, hps):
     test_video = []
     test_audio = []
     test_motion = []
-    for i, (a_t, v_t) in enumerate(va_test_loader):
+    for i, (a_t, v_t, m_t) in enumerate(va_test_loader):
         a_t = a_t.float().cuda()
         test_video.append(v_t.float().cuda())
         test_audio.append(a_t)
@@ -155,23 +155,21 @@ def train(model, device, hps):
     best_xs_reconst = 100000 
     steps = 0
     for epoch in range(1, 3000 + 1):
-        for iterno, (a_t, v_t) in enumerate(va_train_loader):
+        for iterno, (a_t, v_t, m_t) in enumerate(va_train_loader):
             # get video, audio and motion data
             a_t = a_t.float().cuda()
             v_t = v_t.float().cuda() # nhwc -> ncwh
-            #m_t = m_t.float().cuda()
+            m_t = m_t.float().cuda()
 
 
             # get output from encoder
-            #mx = mencoder(m_t)
-            #fuse_x = t.cat((mx, v_t), 2)
-            xs_pred = encoder(v_t, batch_size)
+            mx = mencoder(m_t)
+            fuse_x = t.cat((mx, v_t), 2)
+            xs_pred = encoder(v_t)
 
             
             with t.no_grad():
                 xs_t, zs_t = vqvae._encode(a_t.transpose(1,2))
-                # level = 2 # 0, 1, 2 -> 2756, 689, 172
-                ## pred output
                 xs_code = []
                 for l in range(3):
                     xs_code.append(xs_pred)
@@ -225,9 +223,8 @@ def train(model, device, hps):
                 for j in range(len(D_fake[i]) - 1):
                     loss_feat += wt * F.l1_loss(D_fake[i][j], D_real[i][j].detach())
             
-            #mencoder.zero_grad()
+            mencoder.zero_grad()
             encoder.zero_grad()
-            
             (loss_G + 3 * loss_feat + 5 * xs_error + 8 * code_error + 40 *audio_error + 15 * mel_error).backward()
             optG.step()
 
@@ -247,8 +244,10 @@ def train(model, device, hps):
             if steps % 1000 == 0:
                 st = time.time()
                 with t.no_grad():
-                    for i, (v_t, a_t) in enumerate(zip(test_video, test_audio)):
-                        pred_xs = encoder(v_t,1 )
+                    for i, (v_t, a_t, m_t) in enumerate(zip(test_video, test_audio)):
+                        mx = mencoder(m_t)
+                        fuse_x = t.cat((mx, v_t), 2)
+                        pred_xs = encoder(fuse_x)
                         xs_code = []
                         for j in range(3):
                             xs_code.append(pred_xs)

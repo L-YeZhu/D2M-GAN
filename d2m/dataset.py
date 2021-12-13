@@ -226,6 +226,8 @@ class TiktokDataset(torch.utils.data.Dataset):
 
     def load_motion_to_torch(self, full_path):
         data = np.load(full_path)
+        # print("motion data in the loader", np.shape(data))
+        data = np.reshape(data, (60, 75))
         return torch.from_numpy(data).float()
 
 

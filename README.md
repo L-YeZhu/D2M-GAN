@@ -74,7 +74,7 @@ python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./
 For the TikTok dance-music dataset.
 
 ```
-python generate_tik32	tok.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result --model_level=high
+python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result --model_level=high
 ```
 
 ## 5. Project Page and 
