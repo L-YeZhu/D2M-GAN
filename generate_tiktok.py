@@ -21,8 +21,8 @@ import fire
 import librosa
 import soundfile as sf
 
-from d2m.dataset import VAMDataset
-from d2m.d2m_modules import vqEncoder_high,vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
+from d2m.dataset import TiktokDataset
+from d2m.d2m_modules_tiktok import vqEncoder_high, vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
 from d2m.utils import save_sample
 
 
@@ -103,17 +103,16 @@ def generate(model, device, hps):
 
     #### creat data loader ####
     # root = '/home/zhuye/musicgen'
-    va_set = VAMDataset( audio_files = './dataset/aist_audio_test_segment.txt', video_files = './dataset/aist_video_test_segment.txt', genre_label = './dataset/test_genre.npy', motion_files = './dataset/aist_motion_test_segment.txt', augment=False)
+    va_set = TiktokDataset( audio_files = './dataset/tiktok_audio_test_segment.txt', video_files = './dataset/tiktok_video_test_segment.txt', motion_files = './dataset/tiktok_motion_test_segment.txt', augment=False)
     va_loader = DataLoader(va_set, batch_size = 1)
     print("*******Finish data loader*******")
 
     #### generate samples ####
     t.backends.cudnn.benchmark = True
-    for i, (a_t, v_t, m_t, genre) in enumerate(va_loader):
+    for i, (a_t, v_t, m_t) in enumerate(va_loader):
         a_t = a_t.float().cuda()
         v_t = v_t.float().cuda()
         m_t = m_t.float().cuda()
-        genre = genre.cuda()
 
         # gt samples and original samples
         gt_xs, zs_code = vqvae._encode(a_t.transpose(1,2))
@@ -136,7 +135,7 @@ def generate(model, device, hps):
         ## reconstructed samples
         mx = mencoder(m_t)
         fuse_x = t.cat((mx, v_t),2)
-        pred_xs = encoder(fuse_x, genre, 1)
+        pred_xs = encoder(fuse_x)
         xs_code = []
         for w in range(3):
             xs_code.append(pred_xs)

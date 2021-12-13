@@ -127,6 +127,7 @@ def train(model, device, hps):
         a_t = a_t.float().cuda()
         test_video.append(v_t.float().cuda())
         test_audio.append(a_t)
+        test_motion.append(m_t.float().cuda())
         gt_xs, zs_code = vqvae._encode(a_t.transpose(1,2))
         zs_middle = []
         zs_middle.append(zs_code[code_level])
@@ -165,7 +166,7 @@ def train(model, device, hps):
             # get output from encoder
             mx = mencoder(m_t)
             fuse_x = t.cat((mx, v_t), 2)
-            xs_pred = encoder(v_t)
+            xs_pred = encoder(fuse_x)
 
             
             with t.no_grad():
@@ -244,7 +245,7 @@ def train(model, device, hps):
             if steps % 1000 == 0:
                 st = time.time()
                 with t.no_grad():
-                    for i, (v_t, a_t, m_t) in enumerate(zip(test_video, test_audio)):
+                    for i, (v_t, a_t, m_t) in enumerate(zip(test_video, test_audio, test_motion)):
                         mx = mencoder(m_t)
                         fuse_x = t.cat((mx, v_t), 2)
                         pred_xs = encoder(fuse_x)
@@ -262,7 +263,7 @@ def train(model, device, hps):
                         sf.write(sample_generated, pred_audio, 22050)
 
 
-                #t.save(mencoder.state_dict(), "/home/zhuye/musicgen/logs/mencoder.pt")
+                t.save(mencoder.state_dict(), "./logs/mencoder.pt")
                 t.save(encoder.state_dict(), "./logs/netG.pt")
                 t.save(optG.state_dict(), "./logs/optG.pt")
 

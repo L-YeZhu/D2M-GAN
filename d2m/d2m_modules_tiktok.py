@@ -259,7 +259,7 @@ class vqEncoder_high(nn.Module):
         ##self.lin = nn.Linear(1024+2048+256, 2058)
         #self.fc = nn.Linear(456, 344)
         # !!!! this is for ablation only
-        self.lin = nn.Linear(2048, 2058)
+        self.lin = nn.Linear(2048+1024, 2058)
         #self.genre_embed = nn.Embedding(10,256)
 
         model = [
@@ -311,6 +311,7 @@ class vqEncoder_high(nn.Module):
 
     def forward(self, x):
         x = x.float()
+        # print("check input size", x.size())
         x = self.lin(x)
         out = self.model(x)
         return out * 100
@@ -353,7 +354,7 @@ class motion_encoder(nn.Module):
         self.apply(weights_init)
 
     def forward(self, x):
-        #print("check motion feature 0", x.size())
+        # print("check motion feature 0", x.size())
         x = self.lin1(x)
         #print("check motion feature 1", x.size())
         out = self.model(x)
@@ -453,6 +454,7 @@ class vqEncoder_low(nn.Module):
 
     def forward(self, x):
         x = x.float()
+        print("check input size", x.size())
         #x = self.lin(x)
         out = self.model(x)
         #out = out.view(batch_size, -1)
