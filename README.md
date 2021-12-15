@@ -68,13 +68,13 @@ After finish training the **D2M-GAN**, run the following command to generate the
 For the AIST++ dataset.
 
 ```
-python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result --model_level=high
+python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result_aist --model_level=high
 ```
 
 For the TikTok dance-music dataset.
 
 ```
-python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result --model_level=high
+python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result_tiktok --model_level=high
 ```
 
 ## 5. Project Page and 
