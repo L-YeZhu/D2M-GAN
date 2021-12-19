@@ -89,11 +89,11 @@ def train(model, device, hps):
     vqvae= make_vae_model(model, device, hps).cuda()
     if model_level == "high":
         encoder = vqEncoder_high().cuda()
-        vqvae.load_state_dict(t.load("./models/vqvae_high.pt"))
+        vqvae.load_state_dict(t.load("./models/vqvae_high_tk.pt"))
         vqvae.eval()
     if model_level == "low":
         encoder = vqEncoder_low().cuda()
-        vqvae.load_state_dict(t.load("./models/vqvae_low.pt"))
+        vqvae.load_state_dict(t.load("./models/vqvae_low_tk.pt"))
         vqvae.eval()
 
     mencoder = motion_encoder().cuda()
@@ -233,16 +233,23 @@ def train(model, device, hps):
             # update tensorboard #
             costs.append([loss_D.item(), loss_G.item(), loss_feat.item(), xs_error.item(), code_error.item(), audio_error.item(), mel_error.item()])
 
-            writer.add_scalar("loss/discriminator", costs[-1][0], steps)
-            writer.add_scalar("loss/generator", costs[-1][1], steps)
-            writer.add_scalar("loss/feature_matching", costs[-1][2], steps)
-            writer.add_scalar("loss/xs_reconstruction", costs[-1][3], steps)
-            writer.add_scalar("loss/codebook_reconstruction", costs[-1][4], steps)
-            writer.add_scalar("loss/audio_reconstruction", costs[-1][5], steps)
-            writer.add_scalar("loss/spec_reconstruction", costs[-1][6], steps)
+            # writer.add_scalar("loss/discriminator", costs[-1][0], steps)
+            # writer.add_scalar("loss/generator", costs[-1][1], steps)
+            # writer.add_scalar("loss/feature_matching", costs[-1][2], steps)
+            # writer.add_scalar("loss/xs_reconstruction", costs[-1][3], steps)
+            # writer.add_scalar("loss/codebook_reconstruction", costs[-1][4], steps)
+            # writer.add_scalar("loss/audio_reconstruction", costs[-1][5], steps)
+            # writer.add_scalar("loss/spec_reconstruction", costs[-1][6], steps)
             steps += 1
 
             if steps % 1000 == 0:
+                writer.add_scalar("loss/discriminator", costs[-1][0], steps)
+                writer.add_scalar("loss/generator", costs[-1][1], steps)
+                writer.add_scalar("loss/feature_matching", costs[-1][2], steps)
+                writer.add_scalar("loss/xs_reconstruction", costs[-1][3], steps)
+                writer.add_scalar("loss/codebook_reconstruction", costs[-1][4], steps)
+                writer.add_scalar("loss/audio_reconstruction", costs[-1][5], steps)
+                writer.add_scalar("loss/spec_reconstruction", costs[-1][6], steps)
                 st = time.time()
                 with t.no_grad():
                     for i, (v_t, a_t, m_t) in enumerate(zip(test_video, test_audio, test_motion)):
@@ -271,7 +278,7 @@ def train(model, device, hps):
                 t.save(optD.state_dict(), "./logs/optD.pt")
 
 
-                print("Took %5.4fs to generate samples" % (time.time() - st))
+                print("Took %5.4fs to generate samples" % (time.time() - st), st)
                 print("-" * 100)
 
 
