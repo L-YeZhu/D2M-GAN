@@ -1,4 +1,4 @@
-from d2m.modules import Generator, Audio2Mel
+from d2m.d2m_modules import Generator, Audio2Mel
 
 from pathlib import Path
 import yaml

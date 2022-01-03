@@ -281,7 +281,7 @@ def train(model, device, hps):
                 t.save(optD.state_dict(), "./logs/optD.pt")
 
 
-                print("Took %5.4fs to generate samples" % (time.time() - st))
+                print("Took %5.4fs to generate samples" % (time.time() - st), st)
                 print("-" * 100)
 
 
