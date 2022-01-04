@@ -34,8 +34,7 @@ pip install -e .
 We conduct experiments on the following two datasets.
 
 ### 2.1 AIST++ Dataset
-The AIST++ dataset is a subset of AIST dataset, which can be downloaded from .
-We use the cross-modality data split for training and testing. 
+The AIST++ dataset is a subset of AIST dataset, which can be downloaded from [here](https://google.github.io/aistplusplus_dataset/download.html). We use the cross-modality data split for training and testing. 
 
 
 ### 2.2 TikTok Dance-Music Dataset
