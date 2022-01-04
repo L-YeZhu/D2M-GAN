@@ -461,13 +461,13 @@ class vqEncoder_low(nn.Module):
         self.model = nn.Sequential(*model)
         self.apply(weights_init)
 
-    def forward(self, x):
+    def forward(self, x, genre, batch_size):
         x = x.float()
-        # genre_idx = genre.nonzero(as_tuple=True)[1]
-        # genre_emb = self.genre_embed(genre_idx)
-        # genre_emb = genre_emb.unsqueeze(1)
+        genre_idx = genre.nonzero(as_tuple=True)[1]
+        genre_emb = self.genre_embed(genre_idx)
+        genre_emb = genre_emb.unsqueeze(1)
         #label_embed = genre.unsqueeze(1)#.repeat([1,2,1])
-        # x = torch.cat((x, genre_emb),2)
+        x = torch.cat((x, genre_emb),2)
         #print("fuse x before encoder", x.size())
         x = self.lin(x)
         out = self.model(x)
