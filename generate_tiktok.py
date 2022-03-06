@@ -20,6 +20,7 @@ from jukebox.utils.dist_utils import print_once
 import fire
 import librosa
 import soundfile as sf
+import noisereduce as nr
 
 from d2m.dataset import TiktokDataset
 from d2m.d2m_modules_tiktok import vqEncoder_high, vqEncoder_low, Discriminator, motion_encoder, Audio2Mel
@@ -147,6 +148,7 @@ def generate(model, device, hps):
         pred_code_error = F.l1_loss(pred_xs,quantised_xs[0] )
         gen_audio_error = F.l1_loss(audio[0:seq_len], pred_audio.squeeze().cpu())
         pred_audio = pred_audio.squeeze().detach().cpu().numpy()
+        pred_audio = nr.reduce_noise(y=pred_audio, sr=22050)
         sample_generated = 'generated_'+ str(i+1) + '.wav'
         sample_generated = os.path.join(result_path,sample_generated)
         sf.write(sample_generated, pred_audio, 22050)
