@@ -76,8 +76,8 @@ For the TikTok dance-music dataset.
 python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result_tiktok --model_level=high
 ```
 
-## 5. Project Page and 
-For more qualitative examples of generated music, please refer to our project page.
+## 5. Qualitative Samples
+For qualitative examples of generated music, please refer to our project page.
 <!-- We also provide our pre-trained models. -->
 
 
