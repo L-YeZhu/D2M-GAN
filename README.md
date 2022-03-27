@@ -38,7 +38,9 @@ The AIST++ dataset is a subset of AIST dataset, which can be downloaded from [he
 
 
 ### 2.2 TikTok Dance-Music Dataset
-We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance videos. The current dataset has 445 dance videos with an average length of 12.5 seconds. This dataset can be downloaded from our [project page]().
+We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance videos. The current dataset has 445 dance videos with an average length of 12.5 seconds. 
+The dataset will be released later.
+<!-- This dataset can be downloaded from our [project page](). -->
 
 
 
@@ -53,7 +55,7 @@ python d2m_aist.py --model=5b --save_sample_path=./samples --model_level=high
 ```
 
 ### 3.2 Training on the TikTok Dance-Music
-To train the D2M-GAN on the TikTok Dance-Music dataset.
+To train the D2M-GAN on the TikTok Dance-Music dataset. 
 
 ```
 python d2m_tiktok.py --model=5b --save_sample_path=./samples --model_level=high
@@ -76,12 +78,12 @@ For the TikTok dance-music dataset.
 python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result_tiktok --model_level=high
 ```
 
-## 5. Qualitative Samples
+<!-- ## 5. Qualitative Samples
 For qualitative examples of generated music, please refer to our project page.
-<!-- We also provide our pre-trained models. -->
+We also provide our pre-trained models.
 
 
 ## 6. Citation
-Please consider citing our paper if you find it useful.
+Please consider citing our paper if you find it useful. -->
 
 
