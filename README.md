@@ -1,6 +1,6 @@
 # D2M-GAN: Music Generation for Dance Videos.
 This is the official Pytorch implementation for **D2M-GAN**, a VQ-GAN based complex music generative model for dance videos.
-<!-- [arXiv]() | [Project Page]() | [Bibtex](#bibtex)  -->
+[Paper]() | [Samples](https://l-yezhu.github.io/D2M-GAN/) 
 
 
 ## 0. Project Overview
