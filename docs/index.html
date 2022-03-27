@@ -1,0 +1,334 @@
+<script src="http://www.google.com/jsapi" type="text/javascript"></script> 
+<script type="text/javascript">google.load("jquery", "1.3.2");</script>
+
+<style type="text/css">
+	body {
+		font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; 
+		font-weight:300;
+		font-size:18px;
+		margin-left: auto;
+		margin-right: auto;
+		width: 1100px;
+	}
+	
+	h1 {
+		font-size:32px;
+		font-weight:300;
+	}
+	
+	.disclaimerbox {
+		background-color: #eee;		
+		border: 1px solid #eeeeee;
+		border-radius: 10px ;
+		-moz-border-radius: 10px ;
+		-webkit-border-radius: 10px ;
+		padding: 20px;
+	}
+
+	video.header-vid {
+		height: 140px;
+		border: 1px solid black;
+		border-radius: 10px ;
+		-moz-border-radius: 10px ;
+		-webkit-border-radius: 10px ;
+	}
+	
+	img.header-img {
+		height: 140px;
+		border: 1px solid black;
+		border-radius: 10px ;
+		-moz-border-radius: 10px ;
+		-webkit-border-radius: 10px ;
+	}
+	
+	img.rounded {
+		border: 1px solid #eeeeee;
+		border-radius: 10px ;
+		-moz-border-radius: 10px ;
+		-webkit-border-radius: 10px ;
+	}
+	
+	a:link,a:visited
+	{
+		color: #1367a7;
+		text-decoration: none;
+	}
+	a:hover {
+		color: #208799;
+	}
+	
+	td.dl-link {
+		height: 160px;
+		text-align: center;
+		font-size: 22px;
+	}
+	
+	.layered-paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+		box-shadow:
+		0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+		5px 5px 0 0px #fff, /* The second layer */
+		5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+		10px 10px 0 0px #fff, /* The third layer */
+		10px 10px 1px 1px rgba(0,0,0,0.35), /* The third layer shadow */
+		15px 15px 0 0px #fff, /* The fourth layer */
+		15px 15px 1px 1px rgba(0,0,0,0.35), /* The fourth layer shadow */
+		20px 20px 0 0px #fff, /* The fifth layer */
+		20px 20px 1px 1px rgba(0,0,0,0.35), /* The fifth layer shadow */
+		25px 25px 0 0px #fff, /* The fifth layer */
+		25px 25px 1px 1px rgba(0,0,0,0.35); /* The fifth layer shadow */
+		margin-left: 10px;
+		margin-right: 45px;
+	}
+
+	.paper-big { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+		box-shadow:
+		0px 0px 1px 1px rgba(0,0,0,0.35); /* The top layer shadow */
+
+		margin-left: 10px;
+		margin-right: 45px;
+	}
+
+
+	.layered-paper { /* modified from: http://css-tricks.com/snippets/css/layered-paper/ */
+		box-shadow:
+		0px 0px 1px 1px rgba(0,0,0,0.35), /* The top layer shadow */
+		5px 5px 0 0px #fff, /* The second layer */
+		5px 5px 1px 1px rgba(0,0,0,0.35), /* The second layer shadow */
+		10px 10px 0 0px #fff, /* The third layer */
+		10px 10px 1px 1px rgba(0,0,0,0.35); /* The third layer shadow */
+		margin-top: 5px;
+		margin-left: 10px;
+		margin-right: 30px;
+		margin-bottom: 5px;
+	}
+	
+	.vert-cent {
+		position: relative;
+		top: 50%;
+		transform: translateY(-50%);
+	}
+	
+	hr
+	{
+		border: 0;
+		height: 1px;
+		background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0));
+	}
+</style>
+
+<html>
+<head>
+	<title>D2M-GAN</title>
+	<meta property="og:image" content="Path to my teaser.png"/> <!-- Facebook automatically scrapes this. Go to https://developers.facebook.com/tools/debug/ if you update and want to force Facebook to rescrape. -->
+	<meta property="og:title" content="Creative and Descriptive Paper Title." />
+	<meta property="og:description" content="Paper description." />
+
+	<!-- Get from Google Analytics -->
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src=""></script> 
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-75863369-6');
+	</script>
+</head>
+
+<body>
+	<br>
+	<center>
+		<span style="font-size:36px">Quantized GAN for Complex Music Generation from Dance Videos</span>
+		<table align=center width=600px>
+			<table align=center width=600px>
+				<tr>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="https://l-yezhu.github.io/">Ye Zhu</a></span>
+						</center>
+					</td>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="">Kyle Olszewski</a></span>
+						</center>
+					</td>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="https://yu-wu.net/">Yu Wu</a></span>
+						</center>
+					</td>
+			</table>
+			<table align=center width=800px>
+				<tr>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="">Panos Achlioptas</a></span>
+						</center>
+					</td>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="">Menglei Chai</a></span>
+						</center>
+					</td>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="">Yan Yan</a></span>
+						</center>
+					</td>
+					<td align=center width=100px>
+						<center>
+							<span style="font-size:22px"><a href="">Sergey Tulyakov</a></span>
+						</center>
+					</td>
+				</tr>
+			</table>
+
+
+
+
+			<table align=center width=300px>
+				<tr>
+					<td align=center width=120px>
+						<center>
+							<span style="font-size:22px"><a href=''>[Paper]</a></span>
+						</center>
+					</td>
+					<td align=center width=120px>
+						<center>
+							<span style="font-size:22px"><a href='https://github.com/L-YeZhu/D2M-GAN'>[GitHub]</a></span><br>
+						</center>
+					</td>
+<!-- 					<td align=center width=120px>
+						<center>
+							<span style="font-size:22px"><a href='https://github.com/L-YeZhu/D2M-GAN'>[Dataset]</a></span><br>
+						</center>
+					</td> -->
+				</tr>
+			</table>
+		</table>
+	</center>
+
+
+	<hr>
+
+	<table align=center width=850px>
+		<center><h1>Abstract</h1></center>
+		<tr>
+			<td>
+				We present Dance2Music-GAN (D2M-GAN), a novel adversarial multi-modal framework that generates complex musical samples conditioned on dance videos. Our proposed framework takes dance video frames and human body motions as input, and learns to generate music samples that well accompany the corresponding input.
+			</td>
+		</tr>
+		<tr>
+			<td width=260px>
+				<center>
+					<img class="round" style="width:700px" src="./resources/d2m.png"/>
+				</center>
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<hr>
+	<table align=center width=850px>
+	<center><h1>Motivations</h1></center>
+	<tr>
+		<td>
+			Current cross-modality music generation works via symbolic representations generate mono-instrumental sounds for dance videos, which do not suit the real-world application scenarios.
+			<br>
+			<i>(Left: GT video with pop dance and music. Right: sample music generated via MIDI-based methods.)
+		</td>
+	</tr>
+</table>
+	<p align="center">
+		<iframe width="330" height="200" src="./samples/motivation_gt.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/motivation_midi.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+	<br>
+	</table>
+	<br>
+
+
+	<hr>
+	<table align=center width=850px>
+	<center><h1>Sample Explorer</h1></center>
+
+
+
+	<table align=center width=850px>
+	<tr>
+		<td> <i>Samples generated from our high-level D2M-GAN.
+			Note that the symbolic musical representation based methods in nature do not contain audio noises due to the pre-defined synthesizers, in contrast to our learning-based synthesizer.
+		</td>
+	</tr>
+	</table>		
+	<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_high1.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_high2.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+		<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_high3.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_high4.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+	</p>
+		<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_high5.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_high6.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+	<br>
+
+	<table align=center width=850px>
+	<tr>
+		<td> <i>Samples generated from our low-level D2M-GAN.
+		</td>
+	</tr>
+	</table>
+	<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_low1.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_low2.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+		<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_low3.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_low4.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+	</p>
+		<p align="center">
+		<iframe width="330" height="200" src="./samples/D2M_low5.mp4" frameborder="0" volume=0.2 allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+		<iframe width="330" height="200" src="./samples/D2M_low6.mp4" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen align="center"></iframe>
+	</p>
+	<br>
+
+
+
+	<hr>
+	<table align=center width=450px>
+		<center><h1>Paper and Supplementary Material</h1></center>
+		<tr>
+			<td><a href=""><img class="layered-paper-big" style="height:175px" src="./resources/paper.png"/></a></td>
+			<td><span style="font-size:14pt">Ye Zhu, Kyle Olszewski, Yu Wu, Panos Achlioptas, Menglei Chai, Yan Yan, and Sergey Tulyakov.<br>
+				<b>Quantized GAN for Complex Music Generation from Dance Videos</b><br>
+				ArXiv.<br>
+				<!-- (hosted on <a href="">ArXiv</a>)<br> -->
+				<!-- (<a href="./resources/camera-ready.pdf">camera ready</a>)<br> -->
+				<span style="font-size:4pt"><a href=""><br></a>
+				</span>
+			</td>
+		</tr>
+	</table>
+	<br>
+
+	<table align=center width=600px>
+		<tr>
+			<td><span style="font-size:14pt"><center>
+				<a href="./resources/bibtex.txt">[Bibtex]</a>
+			</center></td>
+		</tr>
+	</table>
+
+	<hr>
+	<br>
+
+
+<br>
+</body>
+</html>
+
