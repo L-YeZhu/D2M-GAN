@@ -1,7 +1,7 @@
 # D2M-GAN: Music Generation for Dance Videos.
 This is the official Pytorch implementation for **D2M-GAN**, a VQ-GAN based complex music generative model for dance videos.
 
-[Paper]() | [Samples](https://l-yezhu.github.io/D2M-GAN/) 
+[Paper](https://arxiv.org/abs/2204.00604) | [Samples](https://l-yezhu.github.io/D2M-GAN/) 
 
 
 ## 0. Project Overview
@@ -81,10 +81,18 @@ python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_pat
 
 <!-- ## 5. Qualitative Samples
 For qualitative examples of generated music, please refer to our project page.
-We also provide our pre-trained models.
+We also provide our pre-trained models. -->
 
 
-## 6. Citation
-Please consider citing our paper if you find it useful. -->
+## 5. Citation
+Please consider citing our paper if you find it useful. 
+```
+@article{yezhu2022quantizedgan,
+  title={Quantized GAN for Complex Music Generation from Dance Videos},
+  author={Zhu, Ye and Olszewski, Kyle and Wu, Yu and Achlioptas, Panos and Chai, Menglei and Yan, Yan and Tulyakov, Sergey},
+  journal={arXiv preprint arXiv:2204.00604},
+  year={2022}
+}
+```
 
 

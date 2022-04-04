@@ -1,6 +1,6 @@
-@inproceedings{author20XXtitle,
-  title={Please cite me},
-  author={Author, First and Author, Second and Author, Third},
-  booktitle={Conference},
-  year={20XX}
+@article{yezhu2022quantizedgan,
+  title={Quantized GAN for Complex Music Generation from Dance Videos},
+  author={Zhu, Ye and Olszewski, Kyle and Wu, Yu and Achlioptas, Panos and Chai, Menglei and Yan, Yan and Tulyakov, Sergey},
+  journal={arXiv preprint arXiv:2204.00604},
+  year={2022}
 }
