@@ -5,8 +5,10 @@ This is the official Pytorch implementation for **D2M-GAN**, a VQ-GAN based comp
 
 ### Updates:
 
-- [X] I provided the pre-processed AIST++ visual, motion and music audio data in 2-seconds to faciliate the training experiments. They can be downloaded here if needed: [video](https://drive.google.com/file/d/1Wb5HVJW3oP9Q2WTu_rqaTIOAFoxPoLTI/view?usp=sharing), [motion](https://drive.google.com/file/d/138rM85CDbSRTsHaLOEXdqqzDyS0vt_sT/view?usp=sharing), [audio](https://drive.google.com/file/d/1YVDvHqg3Tw7gxzdt8fSNtuDPFru9rgxa/view?usp=sharing)
+- [X] I provided the pre-processed AIST++ visual, motion and music audio data in 2-seconds to facilitate the training experiments. They can be downloaded here if needed: [video](https://drive.google.com/file/d/1Wb5HVJW3oP9Q2WTu_rqaTIOAFoxPoLTI/view?usp=sharing), [motion](https://drive.google.com/file/d/138rM85CDbSRTsHaLOEXdqqzDyS0vt_sT/view?usp=sharing), [audio](https://drive.google.com/file/d/1YVDvHqg3Tw7gxzdt8fSNtuDPFru9rgxa/view?usp=sharing)
 - [ ] I will provide the script to calculate the beats scores between the GT and generated music later.
+- [ ] The TikTok Dance-Music dataset release.
+- [ ] Pre-trained models release.
 
 
 ## 1. Project Overview
