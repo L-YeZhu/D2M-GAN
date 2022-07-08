@@ -1,14 +1,18 @@
 # D2M-GAN: Music Generation for Dance Videos.
-This is the official Pytorch implementation for **D2M-GAN**, a VQ-GAN based complex music generative model for dance videos.
+This is the official Pytorch implementation for **D2M-GAN**, a VQ-GAN based complex music generative model for dance videos. (ECCV 2022)
+
+Ye Zhu, Kyle Olszewski, Yu Wu, Panos Achlioptas, Menglei Chai, Yan Yan, Sergey Tulyakov
 
 [Paper](https://arxiv.org/abs/2204.00604) | [Samples](https://l-yezhu.github.io/D2M-GAN/) 
 
 ### Updates:
 
-- [X] I provided the pre-processed AIST++ visual, motion and music audio data in 2-seconds to facilitate the training experiments. They can be downloaded here if needed: [video](https://drive.google.com/file/d/1Wb5HVJW3oP9Q2WTu_rqaTIOAFoxPoLTI/view?usp=sharing), [motion](https://drive.google.com/file/d/138rM85CDbSRTsHaLOEXdqqzDyS0vt_sT/view?usp=sharing), [audio](https://drive.google.com/file/d/1YVDvHqg3Tw7gxzdt8fSNtuDPFru9rgxa/view?usp=sharing)
+- If you are interested in this Dance-to-Music generation task or the conditional cross-modality synthesis in general, please also check our follow-up work using the Contrastive Diffusion [here](https://github.com/L-YeZhu/CDCD), thanks!
+
+<!-- - [X] I provided the pre-processed AIST++ visual, motion and music audio data in 2-seconds to facilitate the training experiments. They can be downloaded here if needed: [video](https://drive.google.com/file/d/1Wb5HVJW3oP9Q2WTu_rqaTIOAFoxPoLTI/view?usp=sharing), [motion](https://drive.google.com/file/d/138rM85CDbSRTsHaLOEXdqqzDyS0vt_sT/view?usp=sharing), [audio](https://drive.google.com/file/d/1YVDvHqg3Tw7gxzdt8fSNtuDPFru9rgxa/view?usp=sharing)
 - [ ] I will provide the script to calculate the beats scores between the GT and generated music later.
-- [ ] The TikTok Dance-Music dataset release.
-- [ ] Pre-trained models release.
+- [X] The TikTok Dance-Music dataset release.
+- [X] Pre-trained models release. -->
 
 
 ## 1. Project Overview
@@ -47,9 +51,8 @@ The AIST++ dataset is a subset of AIST dataset, which can be downloaded from [he
 
 ### 3.2 TikTok Dance-Music Dataset
 We build a TikTok Dance-Music dataset, which contains the "in-the-wild" dance videos. The current dataset has 445 dance videos with an average length of 12.5 seconds. 
-The dataset will be released later.
-<!-- This dataset can be downloaded from our [project page](). -->
-
+We provide the full dataset annotation including the video link, music ID, video ID, the duration and the number of dancers [here](https://drive.google.com/file/d/1AUN-5rKBRI1sU0YbiSlTrgbtOmyUmhBM/view?usp=sharing), as well as our splits for [training](https://drive.google.com/file/d/1m4zZ7mYPHqCW-xEUIIHY-u3h28GXuWAD/view?usp=sharing) and [testing](https://drive.google.com/file/d/19klwFDJqJzKu4Tucqvx3pNLbx8oOiB1W/view?usp=sharing).
+To facilitate the usage, the preprocessed [motion](https://drive.google.com/file/d/1Zi2Ut4r6UONN-OrVhkjT2o43kqqlAUga/view?usp=sharing), [vision](https://drive.google.com/file/d/1oJ9cmyKZQuSPETGZBSCwJd3J6I11Qq1c/view?usp=sharing), and [music audio](https://drive.google.com/file/d/1RPRlansMmpPtCY1zDVI5-hMC0EpbVFrh/view?usp=sharing) are also available.
 
 
 
@@ -74,7 +77,7 @@ python d2m_tiktok.py --model=5b --save_sample_path=./samples --model_level=high
 
 After finish training the **D2M-GAN**, run the following command to generate the music samples.
 
-For the AIST++ dataset.
+For the AIST++ dataset. We also release the pre-trained models for the [motion encoder](https://drive.google.com/file/d/1TWe1AGMbldfRWFBLnaE5d8GYzeHMlg4o/view?usp=sharing) and [music VQ generator](https://drive.google.com/file/d/1z-jc_Hn_c39bqGov7mzEYxSmc_104NYY/view?usp=sharing) to run the high level model. 
 
 ```
 python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result_aist --model_level=high
@@ -86,17 +89,20 @@ For the TikTok dance-music dataset.
 python generate_tiktok.py --model=5b --load_path=./logs_tiktok_high --result_path=./audio_result_tiktok --model_level=high
 ```
 
+We also provide a simple tool for calculating the beats cover and hit scores [here](https://github.com/L-YeZhu/Beats_Scores).
+
 
 
 ## 6. Citation
 Please consider citing our paper if you find it useful. 
 ```
-@article{yezhu2022quantizedgan,
+@inproceedings{yezhu2022quantizedgan,
   title={Quantized GAN for Complex Music Generation from Dance Videos},
   author={Zhu, Ye and Olszewski, Kyle and Wu, Yu and Achlioptas, Panos and Chai, Menglei and Yan, Yan and Tulyakov, Sergey},
-  journal={arXiv preprint arXiv:2204.00604},
+  booktitle={The European Conference on Computer Vision (ECCV)},
   year={2022}
 }
 ```
+
 
 
