@@ -94,6 +94,7 @@ class VAMDataset(torch.utils.data.Dataset):
         self.video_files = files_to_list(video_files)
         self.video_files = [Path(video_files).parent / x for x in self.video_files]
         self.motion_files = files_to_list(motion_files)
+        self.motion_files = [Path(motion_files).parent / x for x in self.motion_files]
         self.genre = np.load(genre_label)
 
     def __len__(self):
