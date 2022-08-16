@@ -77,7 +77,7 @@ python d2m_tiktok.py --model=5b --save_sample_path=./samples --model_level=high
 
 After finish training the **D2M-GAN**, run the following command to generate the music samples.
 
-For the AIST++ dataset. We also release the pre-trained models for the [motion encoder](https://drive.google.com/file/d/1TWe1AGMbldfRWFBLnaE5d8GYzeHMlg4o/view?usp=sharing) and [music VQ generator](https://drive.google.com/file/d/1z-jc_Hn_c39bqGov7mzEYxSmc_104NYY/view?usp=sharing) to run the high level model. 
+For the AIST++ dataset. We also release the pre-trained models for the [motion encoder](https://drive.google.com/file/d/1TWe1AGMbldfRWFBLnaE5d8GYzeHMlg4o/view?usp=sharing) and [music VQ generator](https://drive.google.com/file/d/1z-jc_Hn_c39bqGov7mzEYxSmc_104NYY/view?usp=sharing) to run the high level model. Low level checkpoints can also be downloaded here: [motion encoder](https://drive.google.com/file/d/1Wg0H8RxogjrOd2ey95NqFEyvEjUDSIFP/view?usp=sharing) and [music VQ generator](https://drive.google.com/file/d/1aYorY23XfGumBwro58dm6jMqZ_j-4fEy/view?usp=sharing).
 
 ```
 python generate_aist.py --model=5b --load_path=./logs_aist_high --result_path=./audio_result_aist --model_level=high
